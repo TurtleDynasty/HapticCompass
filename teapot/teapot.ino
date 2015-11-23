@@ -3,14 +3,13 @@
 #include <Adafruit_BNO055.h>
 #include <utility/imumaths.h>
 
-/* File Meta
- *  teapot is a test area for early development on the Wearable Haptic Compass 
- *  project by David Miller and Daniel Greenspan. It was forked from bunny.ino 
- *  by Daniel Greenspan, forked from something else probably. 
+/* Teapot is a test area for early development on the Wearable Haptic Compass 
+   project by David Miller and Daniel Greenspan. It was forked from bunny.ino 
+   by Daniel Greenspan, which was forked from https://github.com/adafruit/Adafruit_BNO055
  *  
- *  History
- *  =======
- *  2015/NOV/23  - Fork bunny.ino from Daniel Greenspan
+ * History
+ * =======
+ * 2015/NOV/23  - Fork bunny.ino from Daniel Greenspan
  */
  
 /* This driver uses the Adafruit unified sensor library (Adafruit_Sensor),
@@ -51,12 +50,9 @@
 Adafruit_BNO055 bno = Adafruit_BNO055(55);
 int counter=0;
 
-/**************************************************************************/
-/*
-    Displays some basic information on this sensor from the unified
-    sensor API sensor_t type (see Adafruit_Sensor for more information)
-*/
-/**************************************************************************/
+/* Displays some basic information on this sensor from the unified
+   sensor API sensor_t type (see Adafruit_Sensor for more information)
+ */
 void displaySensorDetails(void)
 {
   sensor_t sensor;
@@ -75,16 +71,13 @@ void displaySensorDetails(void)
 
 
 
-
 void blink13()
 {
   digitalWrite( 13, HIGH );
-  delay(100);
+  delay(200);
   digitalWrite( 13, LOW );
-  delay(100);
+  delay(200);
 }
-
-
 
 
 
@@ -96,13 +89,11 @@ void PulseRegisterClock()
 
 
 
-
 void PulseSerialClock()
 {
   digitalWrite( SCLK, HIGH );
   digitalWrite( SCLK, LOW );
 }
-
 
 
 
@@ -115,11 +106,10 @@ void ClearShiftRegister()
 
 
 
-
 void WriteToShiftRegister( float fValue )
 {
   char  value;
-  bool  dataLine = LOW;
+  bool  dataLine = LOW;  // unused?
   int   i;
 
 
@@ -127,7 +117,7 @@ void WriteToShiftRegister( float fValue )
   value = char(abs(floor(fValue/10)));
   //Serial.println((int)value);
   
-  // Use the shift register LEDs to indicate inclination.
+  // Use the shift register LEDs to indicate the value.
   for( i=0; i<8; i++ )
   {
     digitalWrite( DATA, (i==value) );
@@ -137,15 +127,31 @@ void WriteToShiftRegister( float fValue )
   }
 }
 
+void WriteByteToShiftRegister(byte bValue){
+  int i;
+
+  ClearShiftRegister();
+
+  for( i=0; i<8; i++ ){
+    digitalWrite(DATA, (i==value));
+    PulseRegisterClock();
+    PulseSerialClock();
+    digitalWrite(DATA, LOW);
+  }
+}
+
+byte 3DVectorToRadianByte( ){
+  return 0;
+}
 
 
 
 
-/**************************************************************************/
-/*
-    Arduino setup function (automatically called at startup)
-*/
-/**************************************************************************/
+
+
+/* Arduino setup function (automatically called at startup)
+ */
+
 void setup(void)
 {  
   pinMode( 13, OUTPUT );
@@ -186,7 +192,7 @@ void setup(void)
 
   delay( 500 );
 
-  /* Display some basic information on this sensor */
+  // Display some basic information on this sensor
   displaySensorDetails();
 
   // Signal user - three blinks - sensor test OK
@@ -200,19 +206,23 @@ void setup(void)
 
 
 
-/**************************************************************************/
-/*
-    Arduino loop function, called once 'setup' is complete (your own code
-    should go here)
+/* Arduino loop function, called once 'setup' is complete (your own code
+   should go here)
 */
-/**************************************************************************/
 void loop(void)
 {
-  /* Get a new sensor event */
+  // Get a new sensor event
   sensors_event_t event;
   bno.getEvent(&event);
   
-
+  Serial.print("X: ");
+  Serial.print((float)event.magnetic.x);
+  Serial.print(" Y: ");
+  Serial.print((float)event.magnetic.y);
+  Serial.print(" Z: ");
+  Serial.print((float)event.magnetic.z);
+  Serial.println("");
+  
   /* Board layout:
          +----------+
          |         *| RST   PITCH  ROLL  HEADING
@@ -224,7 +234,7 @@ void loop(void)
          +----------+
   */
   
-  /* The processing sketch expects data as roll, pitch, heading */
+  // The processing sketch expects data as roll, pitch, heading
   //Serial.print(F("Orientation: "));
   //Serial.print((float)event.orientation.x);
   //Serial.print(F(" "));
@@ -233,24 +243,28 @@ void loop(void)
   //Serial.print((float)event.orientation.z);
   //Serial.println(F(""));
 
-  // Write inclination data to shift register.
-  WriteToShiftRegister( (float)event.orientation.y );
 
-  /* Also send calibration data for each sensor. */
-//  uint8_t sys, gyro, accel, mag = 0;
-//  bno.getCalibration(&sys, &gyro, &accel, &mag);
-//  Serial.print(F("Calibration: "));
-//  Serial.print(sys, DEC);
-//  Serial.print(F(" "));
-//  Serial.print(gyro, DEC);
-//  Serial.print(F(" "));
-//  Serial.print(accel, DEC);
-//  Serial.print(F(" "));
-//  Serial.println(mag, DEC);
+  // Write inclination data to shift register.
+  WriteToShiftRegister( (float)event.magnetic.x );
+
+  
+  
+  // Also send calibration data for each sensor
+  //uint8_t sys, gyro, accel, mag = 0;
+  //bno.getCalibration(&sys, &gyro, &accel, &mag);
+  //Serial.print(F("Calibration: "));
+  //Serial.print(sys, DEC);
+  //Serial.print(F(" "));
+  //Serial.print(gyro, DEC);
+  //Serial.print(F(" "));
+  //Serial.print(accel, DEC);
+  //Serial.print(F(" "));
+  //Serial.println(mag, DEC);
 
   delay(BNO055_SAMPLERATE_DELAY_MS);
   counter += BNO055_SAMPLERATE_DELAY_MS;
 
+  // runs a continuous blinking on the board while loop is running
   if( counter <= 500 )
     digitalWrite( 13, HIGH );
   else 

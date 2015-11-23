@@ -2,7 +2,7 @@
 My Arduino project, software for a wearable haptic compass.
 
 # bunny.ino
-Some test code by Daniel. An inclinometer program that graphs incilation in the long axis of the prototype board on the LED bar.
+Some test code by Daniel. An inclinometer program that graphs incilation in the long axis of the prototype board on the LED bar. Forked from https://github.com/adafruit/Adafruit_BNO055
 
 # teapot.ino
 Some test code by David. A fork of bunny.ino circa 2015/NOV/23. A test area for early development. Goal: graph magnetic heading
