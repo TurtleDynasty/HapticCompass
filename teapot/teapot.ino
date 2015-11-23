@@ -96,8 +96,7 @@ void ClearShiftRegister() {
 }
 
 
-
-void WriteToShiftRegister(float fValue) {
+void WriteFloatToShiftRegister(float fValue) {
   char  value;
   bool  dataLine = LOW;  // unused?
   int   i;
@@ -116,12 +115,14 @@ void WriteToShiftRegister(float fValue) {
   }
 }
 
+
 void WriteByteToShiftRegister(byte bValue){
   int i;
-
+  char value = char(bValue);
+  
   ClearShiftRegister();
 
-  for( i=0; i<8; i++ ){
+  for( i=1; i<255; i*=2 ){
     digitalWrite(DATA, (i==value));
     PulseRegisterClock();
     PulseSerialClock();
@@ -129,9 +130,9 @@ void WriteByteToShiftRegister(byte bValue){
   }
 }
 
-byte 3DVectorToRadianByte( ){
+/*byte 3DVectorToRadianByte( ){
   return 0;
-}
+}*/
 
 
 
@@ -184,7 +185,7 @@ void setup(void) {
   blink13();
   blink13();
 
-  delay( 500 );
+  delay(500);
 }
 
 
@@ -226,8 +227,9 @@ void loop(void) {
   //Serial.print((float)event.orientation.z);
   //Serial.println(F(""));
 
-  // Write inclination data to shift register.
-  WriteToShiftRegister((float)event.magnetic.x);
+  // Write data to shift register.
+  // WriteFloatToShiftRegister((float)event.magnetic.x);
+  
   
   // Also send calibration data for each sensor
   //uint8_t sys, gyro, accel, mag = 0;
@@ -246,7 +248,7 @@ void loop(void) {
 
   // runs a continuous blinking on the board while loop is running
   // why isn't this blink13?
-  if( counter <= 500 ) {}
+  if( counter <= 500 ) {
     digitalWrite(13, HIGH);
   } else {
     digitalWrite(13, LOW);
