@@ -5,7 +5,7 @@
 
 /* Teapot is a test area for early development on the Wearable Haptic Compass 
    project by David Miller and Daniel Greenspan. It was forked from bunny.ino 
-   by Daniel Greenspan, which was forked from https://github.com/adafruit/Adafruit_BNO055
+   by Daniel Greenspan, forked from https://github.com/adafruit/Adafruit_BNO055
  *  
  * History
  * =======
@@ -53,8 +53,7 @@ int counter=0;
 /* Displays some basic information on this sensor from the unified
    sensor API sensor_t type (see Adafruit_Sensor for more information)
  */
-void displaySensorDetails(void)
-{
+void displaySensorDetails(void) {
   sensor_t sensor;
   bno.getSensor(&sensor);
   Serial.println("------------------------------------");
@@ -70,9 +69,7 @@ void displaySensorDetails(void)
 }
 
 
-
-void blink13()
-{
+void blink13() {
   digitalWrite( 13, HIGH );
   delay(200);
   digitalWrite( 13, LOW );
@@ -80,50 +77,42 @@ void blink13()
 }
 
 
-
-void PulseRegisterClock()
-{
-  digitalWrite( RCLK, HIGH );
-  digitalWrite( RCLK, LOW );
+void PulseRegisterClock() {
+  digitalWrite(RCLK, HIGH);
+  digitalWrite(RCLK, LOW);
 }
 
 
-
-void PulseSerialClock()
-{
-  digitalWrite( SCLK, HIGH );
-  digitalWrite( SCLK, LOW );
+void PulseSerialClock() {
+  digitalWrite(SCLK, HIGH);
+  digitalWrite(SCLK, LOW);
 }
 
 
-
-void ClearShiftRegister()
-{
+void ClearShiftRegister() {
   // Clear the shift register
-  digitalWrite( NOT_CLR, LOW );
-  digitalWrite( NOT_CLR, HIGH );
+  digitalWrite(NOT_CLR, LOW);
+  digitalWrite(NOT_CLR, HIGH);
 }
 
 
 
-void WriteToShiftRegister( float fValue )
-{
+void WriteToShiftRegister(float fValue) {
   char  value;
   bool  dataLine = LOW;  // unused?
   int   i;
-
 
   ClearShiftRegister();
   value = char(abs(floor(fValue/10)));
   //Serial.println((int)value);
   
   // Use the shift register LEDs to indicate the value.
-  for( i=0; i<8; i++ )
+  for(i=0; i<8; i++)
   {
-    digitalWrite( DATA, (i==value) );
+    digitalWrite(DATA, (i==value));
     PulseRegisterClock();
     PulseSerialClock();
-    digitalWrite( DATA, LOW );  
+    digitalWrite(DATA, LOW);  
   }
 }
 
@@ -147,31 +136,28 @@ byte 3DVectorToRadianByte( ){
 
 
 
-
-
 /* Arduino setup function (automatically called at startup)
  */
 
-void setup(void)
-{  
-  pinMode( 13, OUTPUT );
-  delay( 500 );
+void setup(void) {  
+  pinMode(13, OUTPUT);
+  delay(500);
 
   // Signal user - two blinks - setup started
   blink13();
   blink13();
 
   // Initialize the shift register control lines.
-  pinMode( NOT_G, OUTPUT);
-  pinMode( RCLK, OUTPUT );
-  pinMode( NOT_CLR, OUTPUT );
-  pinMode( SCLK, OUTPUT );
-  pinMode( DATA, OUTPUT );
-  digitalWrite( NOT_CLR, HIGH );
-  digitalWrite( SCLK, LOW );
-  digitalWrite( RCLK, LOW );
-  digitalWrite( DATA, LOW );
-  digitalWrite( NOT_G, LOW );
+  pinMode(NOT_G, OUTPUT);
+  pinMode(RCLK, OUTPUT);
+  pinMode(NOT_CLR, OUTPUT);
+  pinMode(SCLK, OUTPUT);
+  pinMode(DATA, OUTPUT);
+  digitalWrite(NOT_CLR, HIGH);
+  digitalWrite(SCLK, LOW);
+  digitalWrite(RCLK, LOW);
+  digitalWrite(DATA, LOW);
+  digitalWrite(NOT_G, LOW);
   delay(500);
 
   ClearShiftRegister();
@@ -180,10 +166,8 @@ void setup(void)
   Serial.println("----Orientation Sensor Test----"); Serial.println("");
 
   /* Initialise the sensor */
-  if(!bno.begin())
-  {
-    do
-    {
+  if(!bno.begin()) {
+    do {
       Serial.print("*** Ooops, no BNO055 detected ... Check your wiring or I2C ADDR! ***");
       delay(1000);
     }
@@ -206,11 +190,10 @@ void setup(void)
 
 
 
-/* Arduino loop function, called once 'setup' is complete (your own code
-   should go here)
+/* Arduino loop function, called once 'setup' is complete.
 */
-void loop(void)
-{
+
+void loop(void) {
   // Get a new sensor event
   sensors_event_t event;
   bno.getEvent(&event);
@@ -243,11 +226,8 @@ void loop(void)
   //Serial.print((float)event.orientation.z);
   //Serial.println(F(""));
 
-
   // Write inclination data to shift register.
-  WriteToShiftRegister( (float)event.magnetic.x );
-
-  
+  WriteToShiftRegister((float)event.magnetic.x);
   
   // Also send calibration data for each sensor
   //uint8_t sys, gyro, accel, mag = 0;
@@ -265,11 +245,14 @@ void loop(void)
   counter += BNO055_SAMPLERATE_DELAY_MS;
 
   // runs a continuous blinking on the board while loop is running
-  if( counter <= 500 )
-    digitalWrite( 13, HIGH );
-  else 
-    digitalWrite( 13, LOW );
+  // why isn't this blink13?
+  if( counter <= 500 ) {}
+    digitalWrite(13, HIGH);
+  } else {
+    digitalWrite(13, LOW);
+  }
 
-  if( counter >= 1000 )
+  if(counter >= 1000){
     counter = 0;
+    }
 }
