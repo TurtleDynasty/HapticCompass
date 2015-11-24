@@ -3,37 +3,36 @@
 #include <Adafruit_BNO055.h>
 #include <utility/imumaths.h>
 
-/* Teapot is a test area for early development on the Wearable Haptic Compass 
-   project by David Miller and Daniel Greenspan. It was forked from bunny.ino 
-   by Daniel Greenspan, forked from https://github.com/adafruit/Adafruit_BNO055
+/*  Teapot is a test area for early development on the Wearable Haptic Compass 
+    project by David Miller and Daniel Greenspan. It was forked from bunny.ino 
+    by Daniel Greenspan, forked from https://github.com/adafruit/Adafruit_BNO055
  *  
- * History
- * =======
- * 2015/NOV/23  - Fork bunny.ino from Daniel Greenspan
+ *  History
+ *  =======
+ *  2015/NOV/23  - Fork bunny.ino from Daniel Greenspan
  */
  
-/* This driver uses the Adafruit unified sensor library (Adafruit_Sensor),
-   which provides a common 'type' for sensor data and some helper functions.
+/*  This driver uses the Adafruit unified sensor library (Adafruit_Sensor),
+    which provides a common 'type' for sensor data and some helper functions.
 
-   To use this driver you will also need to download the Adafruit_Sensor
-   library and include it in your libraries folder.
+    To use this driver you will also need to download the Adafruit_Sensor
+    library and include it in your libraries folder.
 
-   You should also assign a unique ID to this sensor for use with
-   the Adafruit Sensor API so that you can identify this particular
-   sensor in any data logs, etc.  To assign a unique ID, simply
-   provide an appropriate value in the constructor below (12345
-   is used by default in this example).
+    You should also assign a unique ID to this sensor for use with the Adafruit 
+    Sensor API so that you can identify this particular sensor in any data logs, etc.  
+    To assign a unique ID, simply provide an appropriate value in the constructor 
+    below (12345 is used by default in this example).
 
-   Connections
-   ===========
-   Connect SCL to analog 5
-   Connect SDA to analog 4
-   Connect VDD to 3.3-5V DC
-   Connect GROUND to common ground
+    Connections
+    ===========
+    Connect SCL to analog 5
+    Connect SDA to analog 4
+    Connect VDD to 3.3-5V DC
+    Connect GROUND to common ground
 
-   History
-   =======
-   2015/MAR/03  - First release (KTOWN)
+    History
+    =======
+    2015/MAR/03  - First release (KTOWN)
 */
 
 
@@ -50,8 +49,8 @@
 Adafruit_BNO055 bno = Adafruit_BNO055(55);
 int counter=0;
 
-/* Displays some basic information on this sensor from the unified
-   sensor API sensor_t type (see Adafruit_Sensor for more information)
+/*  Displays some basic information on this sensor from the unified
+    sensor API sensor_t type (see Adafruit_Sensor for more information)
  */
 void displaySensorDetails(void) {
   sensor_t sensor;
@@ -130,7 +129,8 @@ void WriteByteToShiftRegister(byte bValue){
   }
 }
 
-/*byte 3DVectorToRadianByte( ){
+/* float CalculateCompassDegrees(){
+
   return 0;
 }*/
 
@@ -190,22 +190,63 @@ void setup(void) {
 
 
 
+/*  Display sensor calibration status
+ *  Forked from adafruit calibration tutorial
+ */
+void displayCalStatus(void){
+  //Get the four calibration values (0..3)
+  //Any sensor data reporting 0 should be ignored,
+  //3 means 'fully calibrated"
+  
+  uint8_t system, gyro, accel, mag;
+  system = gyro = accel = mag = 0;
+  bno.getCalibration(&system, &gyro, &accel, &mag);
+ 
+  // The data should be ignored until the system calibration is > 0
+  Serial.print("\t");
+  if (!system) {
+    Serial.print("! ");
+  }
+ 
+  // Display the individual values
+  Serial.print("Sys:");
+  Serial.print(system, DEC);
+  Serial.print(" G:");
+  Serial.print(gyro, DEC);
+  Serial.print(" A:");
+  Serial.print(accel, DEC);
+  Serial.print(" M:");
+  Serial.println(mag, DEC);
+}
+
+
+void SerialPrintData3DVector(sensors_vec_t vector){
+  Serial.print("X: ");
+  Serial.print((float)vector.x);
+  Serial.print("  Y: ");
+  Serial.print((float)vector.y);
+  Serial.print("  Z: ");
+  Serial.print((float)vector.z);
+  Serial.print("  ROLL: ");
+  Serial.print((float)vector.roll);
+  Serial.print("  PITCH: ");
+  Serial.print((float)vector.pitch);
+  Serial.print("  HEADING: ");
+  Serial.print((float)vector.heading);
+  Serial.println("");
+}
+
+
 
 /* Arduino loop function, called once 'setup' is complete.
 */
-
 void loop(void) {
   // Get a new sensor event
   sensors_event_t event;
   bno.getEvent(&event);
   
-  Serial.print("X: ");
-  Serial.print((float)event.magnetic.x);
-  Serial.print(" Y: ");
-  Serial.print((float)event.magnetic.y);
-  Serial.print(" Z: ");
-  Serial.print((float)event.magnetic.z);
-  Serial.println("");
+  SerialPrintData3DVector(event.magnetic);
+  
   
   /* Board layout:
          +----------+
