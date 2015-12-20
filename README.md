@@ -1,6 +1,9 @@
 # HapticCompass
 My Arduino project, software for a wearable haptic compass.
 
+# North Paw
+The open-source project that inspired this project. This project is put together from what's at hand, instead of reproducing the North Paw's specifications. Check out their jam at http://sensebridge.net/projects/northpaw/
+
 # bunny.ino
 Some test code by Daniel. An inclinometer program that graphs incilation in the long axis of the prototype board on the LED bar. Forked from https://github.com/adafruit/Adafruit_BNO055
 
